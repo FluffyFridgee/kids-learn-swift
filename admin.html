@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>後台管理系統</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 後台管理系統</h1>
+            <a href="index.html" class="back-btn">← 返回首頁</a>
+        </header>
+
+        <main>
+            <!-- 統計卡片 -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>總用戶數</h3>
+                        <p id="totalUsers" class="stat-number">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-info">
+                        <h3>總遊戲次數</h3>
+                        <p id="totalGames" class="stat-number">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <h3>最高分</h3>
+                        <p id="highestScore" class="stat-number">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 遊戲統計 -->
+            <section class="data-section">
+                <h2>📊 遊戲統計</h2>
+                <div id="gameStats" class="table-container">
+                    <p class="loading">載入中...</p>
+                </div>
+            </section>
+
+            <!-- 用戶排行 -->
+            <section class="data-section">
+                <h2>👑 用戶排行榜</h2>
+                <div class="filter-controls">
+                    <input type="text" id="searchUser" placeholder="搜尋用戶名稱...">
+                    <select id="sortBy">
+                        <option value="score">按總分排序</option>
+                        <option value="games">按遊戲次數排序</option>
+                        <option value="date">按註冊日期排序</option>
+                    </select>
+                </div>
+                <div id="userRanking" class="table-container">
+                    <p class="loading">載入中...</p>
+                </div>
+            </section>
+
+            <!-- 各遊戲排行榜 -->
+            <section class="data-section">
+                <h2>🎯 各遊戲排行榜</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-game="guess-number">猜數字</button>
+                    <button class="tab-btn" data-game="memory-cards">記憶卡</button>
+                    <button class="tab-btn" data-game="whack-a-mole">打地鼠</button>
+                </div>
+                <div id="gameLeaderboard" class="table-container">
+                    <p class="loading">載入中...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+.game-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #6b7280;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: #4b5563;
+    transform: translateY(-2px);
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.info-item {
+    background: #f3f4f6;
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.info-item .label {
+    display: block;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.info-item .value {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+    color: #6366f1;
+}
+
+.game-board {
+    text-align: center;
+    padding: 20px;
+}
+
+.instruction {
+    font-size: 20px;
+    color: #4b5563;
+    margin-bottom: 25px;
+}
+
+.input-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.input-group input {
+    padding: 12px 20px;
+    font-size: 18px;
+    border: 2px solid #6366f1;
+    border-radius: 8px;
+    width: 200px;
+    text-align: center;
+}
+
+.input-group button {
+    padding: 12px 40px;
+    font-size: 18px;
+}
+
+.message {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.message.success {
+    color: #10b981;
+}
+
+.message.error {
+    color: #ef4444;
+}
+
+.message.hint {
+    color: #f59e0b;
+}
+
+.history {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    min-height: 50px;
+}
+
+.history h3 {
+    color: #6366f1;
+    margin-bottom: 15px;
+}
+
+.history-item {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 15px;
+    background: white;
+    border-radius: 6px;
+    border: 2px solid #e5e7eb;
+}
+
+.restart-btn {
+    width: 100%;
+    max-width: 300px;
+    margin: 30px auto;
+    display: block;
+    padding: 15px;
+    font-size: 18px;
+    background: #10b981;
+}
+
+.restart-btn:hover {
+    background: #059669;
+}
+
+/* 記憶卡遊戲樣式 */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    transition: transform 0.3s;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.card.flipped {
+    background: white;
+    border: 3px solid #6366f1;
+}
+
+.card.matched {
+    background: #10b981;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.card:not(.matched):hover {
+    transform: scale(1.05);
+}
+
+.card .card-content {
+    display: none;
+}
+
+.card.flipped .card-content {
+    display: block;
+}
+
+/* 打地鼠遊戲樣式 */
+.moles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.mole-hole {
+    aspect-ratio: 1;
+    background: #8b4513;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border: 5px solid #654321;
+}
+
+.mole {
+    position: absolute;
+    bottom: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 80%;
+    background: #d2691e;
+    border-radius: 50% 50% 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    transition: bottom 0.2s;
+}
+
+.mole-hole.active .mole {
+    bottom: 0;
+}
+
+.mole-hole.hit .mole {
+    background: #ff6b6b;
+}
+
+.timer {
+    font-size: 36px;
+    font-weight: bold;
+    color: #6366f1;
+    text-align: center;
+    margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+    .cards-grid {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .card {
+        font-size: 30px;
+    }
+
+    .moles-grid {
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .mole {
+        font-size: 40px;
+    }
+}

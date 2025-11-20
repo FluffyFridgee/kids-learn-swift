@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲大廳 - Game Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 遊戲大廳</h1>
+            <div class="user-section" id="userSection">
+                <input type="text" id="usernameInput" placeholder="輸入您的名字" maxlength="20">
+                <button id="loginBtn">登入</button>
+                <span id="welcomeMsg" style="display:none;">歡迎, <strong id="currentUser"></strong>!</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="games-grid">
+                <div class="game-card" data-game="guess-number">
+                    <div class="game-icon">🎯</div>
+                    <h3>猜數字</h3>
+                    <p>在限定次數內猜中隨機數字</p>
+                    <button class="play-btn" onclick="location.href='games/guess-number.html'">開始遊戲</button>
+                </div>
+
+                <div class="game-card" data-game="memory-cards">
+                    <div class="game-icon">🃏</div>
+                    <h3>記憶卡</h3>
+                    <p>翻牌配對考驗記憶力</p>
+                    <button class="play-btn" onclick="location.href='games/memory-cards.html'">開始遊戲</button>
+                </div>
+
+                <div class="game-card" data-game="whack-a-mole">
+                    <div class="game-icon">🔨</div>
+                    <h3>打地鼠</h3>
+                    <p>考驗你的反應速度</p>
+                    <button class="play-btn" onclick="location.href='games/whack-a-mole.html'">開始遊戲</button>
+                </div>
+            </section>
+
+            <section class="leaderboard-section">
+                <h2>🏆 總排行榜</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-game="guess-number">猜數字</button>
+                    <button class="tab-btn" data-game="memory-cards">記憶卡</button>
+                    <button class="tab-btn" data-game="whack-a-mole">打地鼠</button>
+                </div>
+                <div id="leaderboard" class="leaderboard">
+                    <p class="loading">載入排行榜中...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p><a href="admin.html">🔐 後台管理</a></p>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
