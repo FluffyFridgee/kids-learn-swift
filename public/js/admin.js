@@ -1,7 +1,7 @@
 // API基礎URL
 const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000/api' 
-    : '/api';
+    : 'https://game-platform-kqct31fyu-fridges-projects-eaccd8b6.vercel.app/api';
 
 let allUsers = [];
 let currentGameTab = 'guess-number';
