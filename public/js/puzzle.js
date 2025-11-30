@@ -184,11 +184,6 @@ function handlePlacedPieceDragStart(e) {
     
     e.dataTransfer.setData('text/plain', pieceValue);
     e.dataTransfer.setData('fromSlot', slotIndex);
-    
-    // 暫時移除碎片（拖動結束時如果沒有放到新位置會恢復）
-    setTimeout(() => {
-        removePieceFromSlot(slotIndex);
-    }, 0);
 }
 
 // 拖動結束
@@ -235,7 +230,15 @@ function handleDrop(e) {
     }
     // 如果是從其他格子拖來的
     else if (fromSlot !== '') {
-        // 直接放置（已經從原位置移除了）
+        const fromSlotIndex = parseInt(fromSlot);
+        
+        // 先移除原位置的碎片
+        const fromSlotElement = document.querySelectorAll('.puzzle-slot')[fromSlotIndex];
+        fromSlotElement.innerHTML = '';
+        fromSlotElement.classList.remove('filled');
+        puzzleSlots[fromSlotIndex] = null;
+        
+        // 放置到新位置
         puzzleSlots[slotIndex] = pieceValue;
         moves++;
         updateDisplay();
