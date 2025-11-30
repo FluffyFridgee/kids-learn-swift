@@ -45,6 +45,71 @@ header h1 {
     font-size: 2.5em;
 }
 
+.share-section {
+    background: #f3f4f6;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.share-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.share-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+#shareUrl {
+    flex: 1;
+    min-width: 250px;
+    max-width: 500px;
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    color: var(--text-secondary);
+}
+
+.copy-btn {
+    padding: 10px 20px;
+    background: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.copy-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+}
+
+.copy-btn.copied {
+    background: #8b5cf6;
+}
+
+.share-hint {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 10px;
+}
+
 .user-section {
     display: flex;
     justify-content: center;

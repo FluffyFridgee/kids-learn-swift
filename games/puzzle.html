@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼圖遊戲</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/game.css">
+    <link rel="stylesheet" href="../css/puzzle.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧩 拼圖遊戲</h1>
+            <a href="../index.html" class="back-btn">← 返回大廳</a>
+        </header>
+
+        <main class="game-container">
+            <div class="game-info">
+                <div class="info-item">
+                    <span class="label">移動次數:</span>
+                    <span id="moves" class="value">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">時間:</span>
+                    <span id="time" class="value">00:00</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">分數:</span>
+                    <span id="score" class="value">0</span>
+                </div>
+            </div>
+
+            <div class="game-board">
+                <!-- 上傳區域 -->
+                <div id="uploadSection" class="upload-section">
+                    <div class="upload-box">
+                        <div class="upload-icon">📸</div>
+                        <h3>上傳你的照片</h3>
+                        <p>支援 JPG、PNG 格式</p>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <button id="uploadBtn" class="upload-btn">選擇照片</button>
+                        <div class="demo-section">
+                            <p>或使用示範圖片：</p>
+                            <div class="demo-images">
+                                <button class="demo-img-btn" data-demo="1">🌄 風景</button>
+                                <button class="demo-img-btn" data-demo="2">🐱 動物</button>
+                                <button class="demo-img-btn" data-demo="3">🎨 藝術</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 預覽區域 -->
+                <div id="previewSection" class="preview-section" style="display: none;">
+                    <div class="preview-container">
+                        <img id="previewImage" src="" alt="預覽">
+                        <div class="preview-overlay">
+                            <h3>照片預覽</h3>
+                            <p>這張照片將被分解成 5×6 的拼圖</p>
+                            <div class="button-group">
+                                <button id="confirmBtn" class="confirm-btn">開始遊戲</button>
+                                <button id="changeBtn" class="change-btn">換一張</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 拼圖區域 -->
+                <div id="puzzleSection" class="puzzle-section" style="display: none;">
+                    <div class="puzzle-controls">
+                        <button id="showPreviewBtn" class="preview-toggle">👁️ 顯示原圖</button>
+                        <button id="restartBtn" class="restart-btn">🔄 重新開始</button>
+                    </div>
+                    <div class="puzzle-container">
+                        <div id="puzzleGrid" class="puzzle-grid"></div>
+                    </div>
+                    <div id="originalPreview" class="original-preview" style="display: none;">
+                        <img id="originalImage" src="" alt="原圖">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/puzzle.js"></script>
+</body>
+</html>

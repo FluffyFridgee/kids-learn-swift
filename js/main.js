@@ -11,7 +11,37 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserFromStorage();
     loadLeaderboard('guess-number');
     setupEventListeners();
+    setupShareUrl();
 });
+
+// 設置分享網址
+function setupShareUrl() {
+    const shareUrl = document.getElementById('shareUrl');
+    const copyBtn = document.getElementById('copyBtn');
+    
+    if (shareUrl && copyBtn) {
+        // 設置當前網址
+        shareUrl.value = window.location.origin + window.location.pathname;
+        
+        // 複製功能
+        copyBtn.addEventListener('click', () => {
+            shareUrl.select();
+            shareUrl.setSelectionRange(0, 99999); // 移動裝置
+            
+            navigator.clipboard.writeText(shareUrl.value).then(() => {
+                copyBtn.textContent = '✅ 已複製！';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 複製';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                alert('複製失敗，請手動複製');
+            });
+        });
+    }
+}
 
 // 設置事件監聽器
 function setupEventListeners() {
