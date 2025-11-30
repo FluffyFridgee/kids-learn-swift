@@ -175,6 +175,22 @@ function handleDragStart(e) {
     e.dataTransfer.setData('arrayIndex', e.target.dataset.arrayIndex);
 }
 
+// 處理已放置碎片的拖動開始（從框架移除）
+function handlePlacedPieceDragStart(e) {
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    const slotIndex = parseInt(e.target.dataset.slotIndex);
+    const pieceValue = parseInt(e.target.dataset.pieceValue);
+    
+    e.dataTransfer.setData('text/plain', pieceValue);
+    e.dataTransfer.setData('fromSlot', slotIndex);
+    
+    // 暫時移除碎片（拖動結束時如果沒有放到新位置會恢復）
+    setTimeout(() => {
+        removePieceFromSlot(slotIndex);
+    }, 0);
+}
+
 // 拖動結束
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
@@ -210,10 +226,76 @@ function handleDrop(e) {
     }
 
     const pieceValue = parseInt(e.dataTransfer.getData('text/plain'));
-    const arrayIndex = parseInt(e.dataTransfer.getData('arrayIndex'));
+    const arrayIndex = e.dataTransfer.getData('arrayIndex');
+    const fromSlot = e.dataTransfer.getData('fromSlot');
 
-    // 放置碎片
-    placePiece(slotIndex, pieceValue, arrayIndex);
+    // 如果是從碎片區拖來的
+    if (arrayIndex !== '') {
+        placePiece(slotIndex, pieceValue, parseInt(arrayIndex));
+    }
+    // 如果是從其他格子拖來的
+    else if (fromSlot !== '') {
+        // 直接放置（已經從原位置移除了）
+        puzzleSlots[slotIndex] = pieceValue;
+        moves++;
+        updateDisplay();
+        renderPuzzleSlot(slotIndex, pieceValue);
+        
+        if (checkCompletion()) {
+            completePuzzle();
+        }
+    }
+}
+
+// 從格子移除碎片
+function removePieceFromSlot(slotIndex) {
+    const pieceValue = puzzleSlots[slotIndex];
+    if (pieceValue === null) return;
+    
+    // 更新狀態
+    puzzleSlots[slotIndex] = null;
+    availablePieces.push(pieceValue);
+    
+    // 清空格子
+    const slot = document.querySelectorAll('.puzzle-slot')[slotIndex];
+    slot.innerHTML = '';
+    slot.classList.remove('filled');
+    
+    // 重新渲染碎片區域
+    renderPuzzlePieces();
+}
+
+// 渲染單個格子
+function renderPuzzleSlot(slotIndex, pieceValue) {
+    const slot = document.querySelectorAll('.puzzle-slot')[slotIndex];
+    slot.innerHTML = '';
+    
+    if (pieceValue === slotIndex) {
+        slot.classList.add('filled');
+    } else {
+        slot.classList.remove('filled');
+    }
+    
+    const piece = document.createElement('div');
+    piece.className = 'puzzle-piece placed';
+    piece.draggable = true;
+    piece.dataset.pieceValue = pieceValue;
+    piece.dataset.slotIndex = slotIndex;
+    
+    const row = Math.floor(pieceValue / COLS);
+    const col = pieceValue % COLS;
+    piece.style.backgroundImage = `url(${uploadedImage})`;
+    piece.style.backgroundPosition = `${col * 25}% ${row * 20}%`;
+
+    if (pieceValue === slotIndex) {
+        piece.classList.add('correct');
+    }
+
+    piece.addEventListener('dragstart', handlePlacedPieceDragStart);
+    piece.addEventListener('dragend', handleDragEnd);
+    piece.addEventListener('click', () => removePieceFromSlot(slotIndex));
+
+    slot.appendChild(piece);
 }
 
 // 放置碎片
@@ -226,10 +308,17 @@ function placePiece(slotIndex, pieceValue, arrayIndex) {
 
     // 在格子中渲染碎片
     const slot = document.querySelectorAll('.puzzle-slot')[slotIndex];
-    slot.classList.add('filled');
+    
+    // 只有正確位置才標記為 filled
+    if (pieceValue === slotIndex) {
+        slot.classList.add('filled');
+    }
     
     const piece = document.createElement('div');
     piece.className = 'puzzle-piece placed';
+    piece.draggable = true;
+    piece.dataset.pieceValue = pieceValue;
+    piece.dataset.slotIndex = slotIndex;
     
     const row = Math.floor(pieceValue / COLS);
     const col = pieceValue % COLS;
@@ -240,6 +329,13 @@ function placePiece(slotIndex, pieceValue, arrayIndex) {
     if (pieceValue === slotIndex) {
         piece.classList.add('correct');
     }
+
+    // 添加拖動事件，讓碎片可以被移回碎片區
+    piece.addEventListener('dragstart', handlePlacedPieceDragStart);
+    piece.addEventListener('dragend', handleDragEnd);
+    
+    // 添加點擊移除功能
+    piece.addEventListener('click', () => removePieceFromSlot(slotIndex));
 
     slot.appendChild(piece);
 
