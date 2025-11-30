@@ -72,8 +72,17 @@
                         <button id="showPreviewBtn" class="preview-toggle">👁️ 顯示原圖</button>
                         <button id="restartBtn" class="restart-btn">🔄 重新開始</button>
                     </div>
-                    <div class="puzzle-container">
-                        <div id="puzzleGrid" class="puzzle-grid"></div>
+                    <div class="puzzle-workspace">
+                        <!-- 拼圖框架（目標區域） -->
+                        <div class="puzzle-frame">
+                            <h3>拼圖框架</h3>
+                            <div id="puzzleGrid" class="puzzle-grid"></div>
+                        </div>
+                        <!-- 碎片區域 -->
+                        <div class="puzzle-pieces-area">
+                            <h3>拼圖碎片</h3>
+                            <div id="piecesContainer" class="pieces-container"></div>
+                        </div>
                     </div>
                     <div id="originalPreview" class="original-preview" style="display: none;">
                         <img id="originalImage" src="" alt="原圖">

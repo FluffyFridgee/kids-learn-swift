@@ -1,6 +1,6 @@
 let uploadedImage = null;
-let puzzlePieces = [];
-let emptyIndex = 29; // 右下角為空格 (5x6 = 30格，索引29)
+let puzzleSlots = []; // 拼圖框架的格子狀態
+let availablePieces = []; // 可用的拼圖碎片
 let moves = 0;
 let startTime = null;
 let timerInterval = null;
@@ -10,7 +10,7 @@ const ROWS = 6;
 const COLS = 5;
 const TOTAL_PIECES = ROWS * COLS;
 
-// 示範圖片 URLs (使用 placeholder 服務)
+// 示範圖片 URLs
 const DEMO_IMAGES = {
     1: 'https://picsum.photos/500/600?random=1',
     2: 'https://picsum.photos/500/600?random=2',
@@ -97,106 +97,165 @@ function startPuzzle() {
 // 初始化拼圖
 function initializePuzzle() {
     moves = 0;
-    emptyIndex = TOTAL_PIECES - 1;
+    score = 0;
     updateDisplay();
 
-    // 創建拼圖片段索引
-    puzzlePieces = Array.from({ length: TOTAL_PIECES }, (_, i) => i);
-    
-    // 打亂拼圖（確保可解）
-    shufflePuzzle();
-    
-    // 渲染拼圖
-    renderPuzzle();
+    // 初始化拼圖格子（都是空的）
+    puzzleSlots = Array(TOTAL_PIECES).fill(null);
+
+    // 創建所有碎片（打亂順序）
+    availablePieces = Array.from({ length: TOTAL_PIECES }, (_, i) => i);
+    shuffleArray(availablePieces);
+
+    // 渲染拼圖框架和碎片
+    renderPuzzleFrame();
+    renderPuzzlePieces();
 }
 
-// 打亂拼圖（使用可解的隨機移動）
-function shufflePuzzle() {
-    const shuffleMoves = 200;
-    for (let i = 0; i < shuffleMoves; i++) {
-        const neighbors = getValidNeighbors(emptyIndex);
-        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
-        swapPieces(emptyIndex, randomNeighbor);
-        emptyIndex = randomNeighbor;
+// 打亂陣列
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
 }
 
-// 獲取空格的有效鄰居
-function getValidNeighbors(index) {
-    const neighbors = [];
-    const row = Math.floor(index / COLS);
-    const col = index % COLS;
-
-    // 上
-    if (row > 0) neighbors.push(index - COLS);
-    // 下
-    if (row < ROWS - 1) neighbors.push(index + COLS);
-    // 左
-    if (col > 0) neighbors.push(index - 1);
-    // 右
-    if (col < COLS - 1) neighbors.push(index + 1);
-
-    return neighbors;
-}
-
-// 交換拼圖片段
-function swapPieces(index1, index2) {
-    [puzzlePieces[index1], puzzlePieces[index2]] = [puzzlePieces[index2], puzzlePieces[index1]];
-}
-
-// 渲染拼圖
-function renderPuzzle() {
+// 渲染拼圖框架
+function renderPuzzleFrame() {
     const grid = document.getElementById('puzzleGrid');
     grid.innerHTML = '';
 
-    puzzlePieces.forEach((pieceValue, index) => {
+    for (let i = 0; i < TOTAL_PIECES; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'puzzle-slot';
+        slot.dataset.slotIndex = i;
+
+        // 設置拖放事件
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('drop', handleDrop);
+        slot.addEventListener('dragleave', handleDragLeave);
+
+        grid.appendChild(slot);
+    }
+}
+
+// 渲染碎片區域
+function renderPuzzlePieces() {
+    const container = document.getElementById('piecesContainer');
+    container.innerHTML = '';
+
+    availablePieces.forEach((pieceValue, index) => {
+        if (pieceValue === null) return; // 已被放置的碎片
+
         const piece = document.createElement('div');
         piece.className = 'puzzle-piece';
-        piece.dataset.index = index;
+        piece.draggable = true;
+        piece.dataset.pieceValue = pieceValue;
+        piece.dataset.arrayIndex = index;
 
-        if (pieceValue === TOTAL_PIECES - 1) {
-            // 空格
-            piece.classList.add('empty');
-        } else {
-            // 設置背景圖片位置
-            const row = Math.floor(pieceValue / COLS);
-            const col = pieceValue % COLS;
-            piece.style.backgroundImage = `url(${uploadedImage})`;
-            piece.style.backgroundPosition = `${col * 25}% ${row * 20}%`;
-            
-            // 檢查是否在正確位置
-            if (pieceValue === index) {
-                piece.classList.add('correct');
-            }
+        // 設置背景圖片位置
+        const row = Math.floor(pieceValue / COLS);
+        const col = pieceValue % COLS;
+        piece.style.backgroundImage = `url(${uploadedImage})`;
+        piece.style.backgroundPosition = `${col * 25}% ${row * 20}%`;
 
-            piece.addEventListener('click', () => handlePieceClick(index));
-        }
+        // 拖放事件
+        piece.addEventListener('dragstart', handleDragStart);
+        piece.addEventListener('dragend', handleDragEnd);
 
-        grid.appendChild(piece);
+        container.appendChild(piece);
     });
 }
 
-// 處理拼圖點擊
-function handlePieceClick(clickedIndex) {
-    const neighbors = getValidNeighbors(emptyIndex);
-    
-    if (neighbors.includes(clickedIndex)) {
-        swapPieces(emptyIndex, clickedIndex);
-        emptyIndex = clickedIndex;
-        moves++;
-        updateDisplay();
-        renderPuzzle();
+// 拖動開始
+function handleDragStart(e) {
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', e.target.dataset.pieceValue);
+    e.dataTransfer.setData('arrayIndex', e.target.dataset.arrayIndex);
+}
 
-        // 檢查是否完成
-        if (checkCompletion()) {
-            completePuzzle();
-        }
+// 拖動結束
+function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+}
+
+// 拖動經過
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const slot = e.currentTarget;
+    if (!slot.classList.contains('filled')) {
+        slot.classList.add('drag-over');
+    }
+}
+
+// 離開拖動區域
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+// 放下碎片
+function handleDrop(e) {
+    e.preventDefault();
+    const slot = e.currentTarget;
+    slot.classList.remove('drag-over');
+
+    const slotIndex = parseInt(slot.dataset.slotIndex);
+    
+    // 檢查這個格子是否已經有碎片
+    if (puzzleSlots[slotIndex] !== null) {
+        return;
+    }
+
+    const pieceValue = parseInt(e.dataTransfer.getData('text/plain'));
+    const arrayIndex = parseInt(e.dataTransfer.getData('arrayIndex'));
+
+    // 放置碎片
+    placePiece(slotIndex, pieceValue, arrayIndex);
+}
+
+// 放置碎片
+function placePiece(slotIndex, pieceValue, arrayIndex) {
+    // 更新狀態
+    puzzleSlots[slotIndex] = pieceValue;
+    availablePieces[arrayIndex] = null;
+    moves++;
+    updateDisplay();
+
+    // 在格子中渲染碎片
+    const slot = document.querySelectorAll('.puzzle-slot')[slotIndex];
+    slot.classList.add('filled');
+    
+    const piece = document.createElement('div');
+    piece.className = 'puzzle-piece placed';
+    
+    const row = Math.floor(pieceValue / COLS);
+    const col = pieceValue % COLS;
+    piece.style.backgroundImage = `url(${uploadedImage})`;
+    piece.style.backgroundPosition = `${col * 25}% ${row * 20}%`;
+
+    // 檢查是否放對位置
+    if (pieceValue === slotIndex) {
+        piece.classList.add('correct');
+    }
+
+    slot.appendChild(piece);
+
+    // 重新渲染碎片區域
+    renderPuzzlePieces();
+
+    // 檢查是否完成
+    if (checkCompletion()) {
+        completePuzzle();
     }
 }
 
 // 檢查是否完成
 function checkCompletion() {
-    return puzzlePieces.every((piece, index) => piece === index);
+    // 檢查是否所有格子都填滿且都在正確位置
+    return puzzleSlots.every((piece, index) => piece === index);
 }
 
 // 完成拼圖
