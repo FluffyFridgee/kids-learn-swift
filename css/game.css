@@ -1,8 +1,8 @@
 .game-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: transparent;
     padding: 40px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: none;
 }
 
 /* 打地鼠遊戲的網頁背景 */
@@ -16,8 +16,10 @@ body.whack-a-mole-page {
 
 .hole-img {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 60%;
+    height: 60%;
+    left: 0;
+    bottom: 0;
     object-fit: contain;
     z-index: 1;
     pointer-events: none;
@@ -226,6 +228,9 @@ body.whack-a-mole-page {
     height: 33.33%;
     cursor: pointer;
     overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
 }
 
 .mole-hole[data-index="0"] { left: 0%; top: 0%; }
@@ -240,9 +245,8 @@ body.whack-a-mole-page {
 
 .mole {
     position: absolute;
-    bottom: -80%;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: -100%;
+    left: 0;
     width: 50%;
     height: 50%;
     background: transparent;
@@ -250,6 +254,7 @@ body.whack-a-mole-page {
     align-items: flex-end;
     justify-content: center;
     transition: bottom 0.4s ease-out;
+    z-index: 0;
 }
 
 .apple-img {
@@ -259,17 +264,13 @@ body.whack-a-mole-page {
     pointer-events: none;
 }
 
-.mole {
-    z-index: 0;
-}
-
 .mole-hole.active .mole {
-    bottom: 30%;
+    bottom: 10%;
 }
 
 .mole-hole.hit .mole {
     opacity: 0.5;
-    transform: translateX(-50%) scale(0.8);
+    transform: scale(0.8);
 }
 
 .mole.green .apple-img {
@@ -281,9 +282,9 @@ body.whack-a-mole-page {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(-50%) rotate(0deg); }
-    25% { transform: translateX(-50%) rotate(-5deg); }
-    75% { transform: translateX(-50%) rotate(5deg); }
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
 }
 
 .timer {
