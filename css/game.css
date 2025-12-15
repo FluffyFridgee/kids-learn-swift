@@ -190,37 +190,46 @@
 
 /* 打地鼠遊戲樣式 */
 .moles-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    max-width: 600px;
+    position: relative;
+    width: 600px;
+    height: 600px;
     margin: 0 auto;
-    padding: 20px;
+    background-image: url('../photo/bkgd.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .mole-hole {
-    aspect-ratio: 1;
-    background: #8b4513;
-    border-radius: 50%;
-    position: relative;
-    overflow: hidden;
+    position: absolute;
+    width: 33.33%;
+    height: 33.33%;
     cursor: pointer;
-    border: 5px solid #654321;
+    overflow: visible;
 }
+
+.mole-hole[data-index="0"] { left: 0%; top: 0%; }
+.mole-hole[data-index="1"] { left: 33.33%; top: 0%; }
+.mole-hole[data-index="2"] { left: 66.66%; top: 0%; }
+.mole-hole[data-index="3"] { left: 0%; top: 33.33%; }
+.mole-hole[data-index="4"] { left: 33.33%; top: 33.33%; }
+.mole-hole[data-index="5"] { left: 66.66%; top: 33.33%; }
+.mole-hole[data-index="6"] { left: 0%; top: 66.66%; }
+.mole-hole[data-index="7"] { left: 33.33%; top: 66.66%; }
+.mole-hole[data-index="8"] { left: 66.66%; top: 66.66%; }
 
 .mole {
     position: absolute;
     bottom: -100%;
     left: 50%;
     transform: translateX(-50%);
-    width: 80%;
-    height: 80%;
+    width: 60%;
+    height: 60%;
     background: transparent;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    font-size: 50px;
-    transition: bottom 0.2s;
+    transition: bottom 0.3s ease-out;
 }
 
 .mole img {
