@@ -279,6 +279,10 @@ body.whack-a-mole-page {
     content: url('../photo/green.png');
 }
 
+.mole.bug .apple-img {
+    content: url('../photo/bugs.png');
+}
+
 .mole.green.hit-once {
     animation: shake 0.2s;
 }

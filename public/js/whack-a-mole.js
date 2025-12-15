@@ -1,7 +1,6 @@
 let score = 0;
-let timeLeft = 30;
+let lives = 3;
 let combo = 0;
-let gameInterval;
 let moleInterval;
 let isPlaying = false;
 let greenAppleHits = {}; // 追蹤綠色蘋果的點擊次數
@@ -9,7 +8,7 @@ let greenAppleHits = {}; // 追蹤綠色蘋果的點擊次數
 // 初始化遊戲
 function initGame() {
     score = 0;
-    timeLeft = 30;
+    lives = 3;
     combo = 0;
     isPlaying = false;
     greenAppleHits = {};
@@ -37,21 +36,11 @@ function startGame() {
     document.getElementById('startBtn').textContent = '遊戲進行中...';
     document.getElementById('startBtn').disabled = true;
 
-    // 計時器
-    gameInterval = setInterval(() => {
-        timeLeft--;
-        updateDisplay();
-        
-        if (timeLeft <= 0) {
-            endGame();
-        }
-    }, 1000);
-
-    // 蘋果出現（放慢頻率）
+    // 物件出現（蘋果或蟲子）
     moleInterval = setInterval(showRandomMole, 1200);
 }
 
-// 顯示隨機蘋果
+// 顯示隨機物件（蘋果或蟲子）
 function showRandomMole() {
     if (!isPlaying) return;
 
@@ -63,28 +52,42 @@ function showRandomMole() {
 
     hole.classList.add('active');
     
-    // 30% 機率生成綠色蘋果
     const mole = hole.querySelector('.mole');
-    const isGreen = Math.random() < 0.3;
+    const appleImg = mole.querySelector('.apple-img');
+    const random = Math.random();
     
-    if (isGreen) {
-        mole.classList.add('green');
-        mole.setAttribute('data-green', 'true');
-        greenAppleHits[randomIndex] = 0; // 初始化點擊次數
-    } else {
+    // 20% 機率生成蟲子（30% 綠色蘋果，50% 紅色蘋果
+    if (random < 0.2) {
+        // 蟲子
+        mole.classList.add('bug');
+        mole.setAttribute('data-bug', 'true');
         mole.classList.remove('green');
         mole.removeAttribute('data-green');
         delete greenAppleHits[randomIndex];
+    } else if (random < 0.5) {
+        // 綠色蘋果
+        mole.classList.add('green');
+        mole.setAttribute('data-green', 'true');
+        mole.classList.remove('bug');
+        mole.removeAttribute('data-bug');
+        greenAppleHits[randomIndex] = 0;
+    } else {
+        // 紅色蘋果
+        mole.classList.remove('green', 'bug');
+        mole.removeAttribute('data-green');
+        mole.removeAttribute('data-bug');
+        delete greenAppleHits[randomIndex];
     }
 
-    // 蘋果停留時間
+    // 物件停留時間
     setTimeout(() => {
         if (hole.classList.contains('active') && !hole.classList.contains('hit')) {
             hole.classList.remove('active');
-            // 等待蘋果完全消失後再移除綠色
+            // 等待物件完全消失後再移除類別
             setTimeout(() => {
-                mole.classList.remove('green', 'hit-once');
+                mole.classList.remove('green', 'bug', 'hit-once');
                 mole.removeAttribute('data-green');
+                mole.removeAttribute('data-bug');
                 delete greenAppleHits[randomIndex];
             }, 400);
             // 沒打到,連擊歸零
@@ -94,7 +97,7 @@ function showRandomMole() {
     }, 1000);
 }
 
-// 打蘋果
+// 打物件（蘋果或蟲子）
 function whackMole(index) {
     if (!isPlaying) return;
 
@@ -102,9 +105,28 @@ function whackMole(index) {
     const mole = hole.querySelector('.mole');
     
     if (hole.classList.contains('active') && !hole.classList.contains('hit')) {
+        const isBug = mole.getAttribute('data-bug') === 'true';
         const isGreen = mole.getAttribute('data-green') === 'true';
         
-        if (isGreen) {
+        if (isBug) {
+            // 點到蟲子：扣生命
+            hole.classList.add('hit');
+            lives--;
+            combo = 0;
+            updateDisplay();
+            
+            if (lives <= 0) {
+                endGame();
+            }
+            
+            setTimeout(() => {
+                hole.classList.remove('active', 'hit');
+                setTimeout(() => {
+                    mole.classList.remove('bug');
+                    mole.removeAttribute('data-bug');
+                }, 400);
+            }, 300);
+        } else if (isGreen) {
             // 綠色蘋果需要點擊兩次
             if (!greenAppleHits[index]) {
                 greenAppleHits[index] = 0;
@@ -146,14 +168,14 @@ function whackMole(index) {
 
 // 更新顯示
 function updateDisplay() {
-    document.getElementById('timeLeft').textContent = timeLeft;
+    const livesDisplay = '🍎'.repeat(lives);
+    document.getElementById('lives').textContent = livesDisplay || '☠️';
     document.getElementById('score').textContent = score;
     document.getElementById('combo').textContent = combo;
 }
 
 // 清除計時器
 function clearIntervals() {
-    if (gameInterval) clearInterval(gameInterval);
     if (moleInterval) clearInterval(moleInterval);
 }
 
