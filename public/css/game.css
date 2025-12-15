@@ -191,13 +191,15 @@
 /* 打地鼠遊戲樣式 */
 .moles-grid {
     position: relative;
-    width: 600px;
-    height: 600px;
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 1 / 1;
     margin: 0 auto;
     background-image: url('../photo/bkgd.png');
-    background-size: cover;
+    background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
+    border: 2px solid #333;
 }
 
 .mole-hole {
@@ -236,6 +238,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+    pointer-events: none;
 }
 
 .mole-hole.active .mole {
@@ -265,11 +268,11 @@
     }
 
     .moles-grid {
-        gap: 15px;
-        padding: 10px;
+        max-width: 90vw;
     }
 
     .mole {
-        font-size: 40px;
+        width: 70%;
+        height: 70%;
     }
 }
