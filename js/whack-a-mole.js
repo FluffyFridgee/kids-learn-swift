@@ -168,8 +168,21 @@ function whackMole(index) {
 
 // 更新顯示
 function updateDisplay() {
-    const livesDisplay = '🍎'.repeat(lives);
-    document.getElementById('lives').textContent = livesDisplay || '☠️';
+    const livesContainer = document.getElementById('lives');
+    if (lives <= 0) {
+        livesContainer.textContent = '☠️';
+    } else {
+        livesContainer.innerHTML = '';
+        for (let i = 0; i < lives; i++) {
+            const img = document.createElement('img');
+            img.src = '../photo/fruit.png';
+            img.alt = '生命';
+            img.style.width = '24px';
+            img.style.height = '24px';
+            img.style.marginRight = '4px';
+            livesContainer.appendChild(img);
+        }
+    }
     document.getElementById('score').textContent = score;
     document.getElementById('combo').textContent = combo;
 }
