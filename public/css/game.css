@@ -18,7 +18,8 @@ body.whack-a-mole-page {
     position: absolute;
     width: 90%;
     height: 90%;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     bottom: 0;
     object-fit: contain;
     z-index: 0;
@@ -246,7 +247,8 @@ body.whack-a-mole-page {
 .mole {
     position: absolute;
     bottom: -100%;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 50%;
     height: 50%;
     background: transparent;
@@ -270,7 +272,7 @@ body.whack-a-mole-page {
 
 .mole-hole.hit .mole {
     opacity: 0.5;
-    transform: scale(0.8);
+    transform: translateX(-50%) scale(0.8);
 }
 
 .mole.green .apple-img {
@@ -282,9 +284,9 @@ body.whack-a-mole-page {
 }
 
 @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(-5deg); }
+    75% { transform: translateX(-50%) rotate(5deg); }
 }
 
 .timer {
