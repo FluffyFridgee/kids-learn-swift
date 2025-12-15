@@ -81,9 +81,12 @@ function showRandomMole() {
     setTimeout(() => {
         if (hole.classList.contains('active') && !hole.classList.contains('hit')) {
             hole.classList.remove('active');
-            mole.classList.remove('green', 'hit-once');
-            mole.removeAttribute('data-green');
-            delete greenAppleHits[randomIndex];
+            // 等待蘋果完全消失後再移除綠色
+            setTimeout(() => {
+                mole.classList.remove('green', 'hit-once');
+                mole.removeAttribute('data-green');
+                delete greenAppleHits[randomIndex];
+            }, 400);
             // 沒打到,連擊歸零
             combo = 0;
             updateDisplay();
@@ -132,8 +135,11 @@ function whackMole(index) {
 
         setTimeout(() => {
             hole.classList.remove('active', 'hit');
-            mole.classList.remove('green', 'hit-once');
-            mole.removeAttribute('data-green');
+            // 等待蘋果完全消失後再移除綠色
+            setTimeout(() => {
+                mole.classList.remove('green', 'hit-once');
+                mole.removeAttribute('data-green');
+            }, 400);
         }, 300);
     }
 }
