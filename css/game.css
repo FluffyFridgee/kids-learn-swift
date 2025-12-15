@@ -192,14 +192,14 @@
 .moles-grid {
     position: relative;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     aspect-ratio: 1 / 1;
     margin: 0 auto;
     background-image: url('../photo/bkgd.png');
-    background-size: 100% 100%;
-    background-position: center;
+    background-size: 120% 120%;
+    background-position: center center;
     background-repeat: no-repeat;
-    border: 2px solid #333;
+    overflow: hidden;
 }
 
 .mole-hole {
@@ -207,7 +207,7 @@
     width: 33.33%;
     height: 33.33%;
     cursor: pointer;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .mole-hole[data-index="0"] { left: 0%; top: 0%; }
@@ -222,16 +222,16 @@
 
 .mole {
     position: absolute;
-    bottom: -100%;
+    bottom: -80%;
     left: 50%;
     transform: translateX(-50%);
-    width: 60%;
-    height: 60%;
+    width: 50%;
+    height: 50%;
     background: transparent;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    transition: bottom 0.3s ease-out;
+    transition: bottom 0.4s ease-out;
 }
 
 .mole img {
@@ -242,11 +242,27 @@
 }
 
 .mole-hole.active .mole {
-    bottom: 0;
+    bottom: 30%;
 }
 
 .mole-hole.hit .mole {
-    background: #ff6b6b;
+    opacity: 0.5;
+    transform: translateX(-50%) scale(0.8);
+}
+
+.mole.green {
+    filter: hue-rotate(90deg) brightness(1.2);
+}
+
+.mole.green.hit-once {
+    filter: hue-rotate(90deg) brightness(0.8);
+    animation: shake 0.2s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(-5deg); }
+    75% { transform: translateX(-50%) rotate(5deg); }
 }
 
 .timer {

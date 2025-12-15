@@ -4,6 +4,7 @@ let combo = 0;
 let gameInterval;
 let moleInterval;
 let isPlaying = false;
+let greenAppleHits = {}; // 追蹤綠色蘋果的點擊次數
 
 // 初始化遊戲
 function initGame() {
@@ -11,6 +12,7 @@ function initGame() {
     timeLeft = 30;
     combo = 0;
     isPlaying = false;
+    greenAppleHits = {};
     
     updateDisplay();
     clearIntervals();
@@ -18,6 +20,11 @@ function initGame() {
     const holes = document.querySelectorAll('.mole-hole');
     holes.forEach(hole => {
         hole.classList.remove('active', 'hit');
+        const mole = hole.querySelector('.mole');
+        if (mole) {
+            mole.classList.remove('green', 'hit-once');
+            mole.removeAttribute('data-green');
+        }
     });
 }
 
@@ -40,11 +47,11 @@ function startGame() {
         }
     }, 1000);
 
-    // 地鼠出現
-    moleInterval = setInterval(showRandomMole, 800);
+    // 蘋果出現（放慢頻率）
+    moleInterval = setInterval(showRandomMole, 1200);
 }
 
-// 顯示隨機地鼠
+// 顯示隨機蘋果
 function showRandomMole() {
     if (!isPlaying) return;
 
@@ -55,36 +62,78 @@ function showRandomMole() {
     if (hole.classList.contains('active')) return;
 
     hole.classList.add('active');
+    
+    // 30% 機率生成綠色蘋果
+    const mole = hole.querySelector('.mole');
+    const isGreen = Math.random() < 0.3;
+    
+    if (isGreen) {
+        mole.classList.add('green');
+        mole.setAttribute('data-green', 'true');
+        greenAppleHits[randomIndex] = 0; // 初始化點擊次數
+    } else {
+        mole.classList.remove('green');
+        mole.removeAttribute('data-green');
+        delete greenAppleHits[randomIndex];
+    }
 
-    // 地鼠停留時間
+    // 蘋果停留時間
     setTimeout(() => {
         if (hole.classList.contains('active') && !hole.classList.contains('hit')) {
             hole.classList.remove('active');
+            mole.classList.remove('green', 'hit-once');
+            mole.removeAttribute('data-green');
+            delete greenAppleHits[randomIndex];
             // 沒打到,連擊歸零
             combo = 0;
             updateDisplay();
         }
-    }, 600);
+    }, 1000);
 }
 
-// 打地鼠
+// 打蘋果
 function whackMole(index) {
     if (!isPlaying) return;
 
     const hole = document.querySelector(`[data-index="${index}"]`);
+    const mole = hole.querySelector('.mole');
     
     if (hole.classList.contains('active') && !hole.classList.contains('hit')) {
-        hole.classList.add('hit');
-        combo++;
+        const isGreen = mole.getAttribute('data-green') === 'true';
         
-        // 分數計算:基礎10分 + 連擊加成
-        const points = 10 + (combo - 1) * 2;
-        score += points;
+        if (isGreen) {
+            // 綠色蘋果需要點擊兩次
+            if (!greenAppleHits[index]) {
+                greenAppleHits[index] = 0;
+            }
+            greenAppleHits[index]++;
+            
+            if (greenAppleHits[index] === 1) {
+                // 第一次點擊：顯示搖晃效果
+                mole.classList.add('hit-once');
+                return;
+            } else if (greenAppleHits[index] >= 2) {
+                // 第二次點擊：得分（20分）
+                hole.classList.add('hit');
+                combo++;
+                const points = 20 + (combo - 1) * 2;
+                score += points;
+                delete greenAppleHits[index];
+            }
+        } else {
+            // 紅色蘋果：一次就得分（10分）
+            hole.classList.add('hit');
+            combo++;
+            const points = 10 + (combo - 1) * 2;
+            score += points;
+        }
         
         updateDisplay();
 
         setTimeout(() => {
             hole.classList.remove('active', 'hit');
+            mole.classList.remove('green', 'hit-once');
+            mole.removeAttribute('data-green');
         }, 300);
     }
 }
