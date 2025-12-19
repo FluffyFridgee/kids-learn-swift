@@ -1,14 +1,83 @@
 let allUsers = [];
 let currentGameTab = 'memory-cards';
+let isAdminLoggedIn = false;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    loadAllData();
+    initializeDefaultAdmin();
+    setupAdminLogin();
     setupEventListeners();
 });
 
+// 初始化預設管理員帳號
+function initializeDefaultAdmin() {
+    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    
+    // 如果沒有管理員帳號，創建預設管理員
+    if (!allUsers.find(u => u.username === 'admin')) {
+        allUsers.push({
+            id: 'admin-default',
+            username: 'admin',
+            password: 'admin123',
+            isAdmin: true,
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('allUsers', JSON.stringify(allUsers));
+    }
+}
+
+// 設置管理員登入
+function setupAdminLogin() {
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    const adminPassword = document.getElementById('adminPassword');
+    
+    if (adminLoginBtn) {
+        adminLoginBtn.addEventListener('click', handleAdminLogin);
+    }
+    
+    if (adminPassword) {
+        adminPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleAdminLogin();
+            }
+        });
+    }
+}
+
+// 處理管理員登入
+function handleAdminLogin() {
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    
+    if (!username || !password) {
+        alert('請輸入帳號和密碼');
+        return;
+    }
+    
+    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    const admin = allUsers.find(u => u.username === username && u.password === password && u.isAdmin);
+    
+    if (!admin) {
+        alert('帳號或密碼錯誤，或該帳號不是管理員');
+        return;
+    }
+    
+    isAdminLoggedIn = true;
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    
+    loadAllData();
+    loadAllAccounts();
+}
+
 // 設置事件監聽器
 function setupEventListeners() {
+    // 創建帳號
+    const createAccountBtn = document.getElementById('createAccountBtn');
+    if (createAccountBtn) {
+        createAccountBtn.addEventListener('click', handleCreateAccount);
+    }
+
     // 搜尋用戶
     const searchInput = document.getElementById('searchUser');
     if (searchInput) {
@@ -31,6 +100,96 @@ function setupEventListeners() {
             loadGameLeaderboard(currentGameTab);
         });
     });
+}
+
+// 創建新帳號
+function handleCreateAccount() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const isAdmin = document.getElementById('isAdminCheck').checked;
+    
+    if (!username || !password) {
+        alert('請輸入帳號和密碼');
+        return;
+    }
+    
+    if (username.length < 3) {
+        alert('帳號至少 3 個字元');
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert('密碼至少 6 個字元');
+        return;
+    }
+    
+    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    
+    if (allUsers.find(u => u.username === username)) {
+        alert('帳號已存在');
+        return;
+    }
+    
+    const newUser = {
+        id: Date.now().toString(),
+        username: username,
+        password: password,
+        isAdmin: isAdmin,
+        created_at: new Date().toISOString()
+    };
+    
+    allUsers.push(newUser);
+    localStorage.setItem('allUsers', JSON.stringify(allUsers));
+    
+    alert(`帳號創建成功！\n帳號：${username}\n密碼：${password}\n${isAdmin ? '管理員' : '一般用戶'}`);
+    
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('isAdminCheck').checked = false;
+    
+    loadAllAccounts();
+}
+
+// 載入所有帳號
+function loadAllAccounts() {
+    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    const container = document.getElementById('accountsList');
+    
+    if (allUsers.length === 0) {
+        container.innerHTML = '<p>目前沒有帳號</p>';
+        return;
+    }
+    
+    let html = '<h3>所有帳號</h3><table><thead><tr><th>帳號</th><th>類型</th><th>創建時間</th><th>操作</th></tr></thead><tbody>';
+    
+    allUsers.forEach(user => {
+        const date = new Date(user.created_at).toLocaleString('zh-TW');
+        html += `
+            <tr>
+                <td><strong>${escapeHtml(user.username)}</strong></td>
+                <td>${user.isAdmin ? '<span class="badge badge-admin">管理員</span>' : '<span class="badge">用戶</span>'}</td>
+                <td>${date}</td>
+                <td><button onclick="deleteAccount('${user.id}')" class="danger-btn">刪除</button></td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// 刪除帳號
+function deleteAccount(userId) {
+    if (!confirm('確定要刪除這個帳號嗎？')) {
+        return;
+    }
+    
+    let allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    allUsers = allUsers.filter(u => u.id !== userId);
+    localStorage.setItem('allUsers', JSON.stringify(allUsers));
+    
+    alert('帳號已刪除');
+    loadAllAccounts();
 }
 
 // 載入所有數據

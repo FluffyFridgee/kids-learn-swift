@@ -14,7 +14,34 @@
             <a href="index.html" class="back-btn">← 返回首頁</a>
         </header>
 
-        <main>
+        <!-- 管理員登入區域 -->
+        <div id="adminLoginSection" class="admin-login-section" style="display: block;">
+            <div class="login-box">
+                <h2>🔒 管理員登入</h2>
+                <p>請使用管理員帳號登入以查看後台數據</p>
+                <input type="text" id="adminUsername" placeholder="管理員帳號">
+                <input type="password" id="adminPassword" placeholder="密碼">
+                <button id="adminLoginBtn">登入</button>
+                <p class="hint">提示：預設管理員帳號 admin / 密碼 admin123</p>
+            </div>
+        </div>
+
+        <main id="adminContent" style="display: none;">
+            <!-- 創建帳號區域 -->
+            <section class="data-section">
+                <h2>➕ 創建新帳號</h2>
+                <div class="create-account-form">
+                    <input type="text" id="newUsername" placeholder="新帳號（至少3字元）" maxlength="20">
+                    <input type="password" id="newPassword" placeholder="新密碼（至少6字元）" maxlength="50">
+                    <label>
+                        <input type="checkbox" id="isAdminCheck">
+                        設為管理員
+                    </label>
+                    <button id="createAccountBtn" class="primary-btn">創建帳號</button>
+                </div>
+                <div id="accountsList" class="accounts-list"></div>
+            </section>
+
             <!-- 統計卡片 -->
             <section class="stats-section">
                 <div class="stat-card">

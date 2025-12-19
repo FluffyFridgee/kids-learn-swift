@@ -22,9 +22,13 @@
             </div>
 
             <div class="user-section" id="userSection">
-                <input type="text" id="usernameInput" placeholder="輸入您的名字" maxlength="20">
-                <button id="loginBtn">登入</button>
-                <span id="welcomeMsg" style="display:none;">歡迎, <strong id="currentUser"></strong>!</span>
+                <div id="loginForm" style="display: block;">
+                    <input type="text" id="usernameInput" placeholder="賬號" maxlength="20">
+                    <input type="password" id="passwordInput" placeholder="密碼" maxlength="50">
+                    <button id="loginBtn">登入</button>
+                    <button id="registerBtn" class="secondary-btn">註冊</button>
+                </div>
+                <span id="welcomeMsg" style="display:none;">歡迎, <strong id="currentUser"></strong>! <button id="logoutBtn" class="secondary-btn">登出</button></span>
             </div>
         </header>
 
