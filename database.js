@@ -18,9 +18,31 @@ function initDatabase() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      is_admin INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `);
+  `, (err) => {
+    if (err) {
+      console.error('創建 users 表錯誤:', err);
+    } else {
+      // 創建預設管理員帳號
+      db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, user) => {
+        if (!user) {
+          db.run('INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)', 
+            ['admin', 'admin123', 1], 
+            (err) => {
+              if (err) {
+                console.error('創建預設管理員錯誤:', err);
+              } else {
+                console.log('已創建預設管理員帳號: admin / admin123');
+              }
+            }
+          );
+        }
+      });
+    }
+  });
 
   // 分數記錄表
   db.run(`

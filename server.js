@@ -14,35 +14,121 @@ app.use(express.static('public'));
 
 // API路由
 
-// 1. 獲取或創建用戶
-app.post('/api/users', (req, res) => {
-  const { username } = req.body;
+// 1. 用戶註冊
+app.post('/api/register', (req, res) => {
+  const { username, password, isAdmin } = req.body;
   
-  if (!username) {
-    return res.status(400).json({ error: '用戶名不能為空' });
+  if (!username || !password) {
+    return res.status(400).json({ error: '帳號和密碼不能為空' });
   }
 
-  // 先檢查用戶是否存在
+  if (username.length < 3) {
+    return res.status(400).json({ error: '帳號至少 3 個字元' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: '密碼至少 6 個字元' });
+  }
+
+  // 檢查用戶是否已存在
   db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
     
     if (user) {
-      return res.json(user);
+      return res.status(400).json({ error: '帳號已存在' });
     }
 
     // 創建新用戶
-    db.run('INSERT INTO users (username) VALUES (?)', [username], function(err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
+    db.run(
+      'INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)', 
+      [username, password, isAdmin ? 1 : 0], 
+      function(err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ 
+          id: this.lastID, 
+          username,
+          isAdmin: isAdmin ? true : false,
+          message: '註冊成功' 
+        });
       }
-      res.json({ id: this.lastID, username });
-    });
+    );
   });
 });
 
-// 2. 提交分數
+// 2. 用戶登入
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  if (!username || !password) {
+    return res.status(400).json({ error: '帳號和密碼不能為空' });
+  }
+
+  db.get(
+    'SELECT id, username, is_admin, created_at FROM users WHERE username = ? AND password = ?', 
+    [username, password], 
+    (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (!user) {
+        return res.status(401).json({ error: '帳號或密碼錯誤' });
+      }
+
+      res.json({ 
+        id: user.id,
+        username: user.username,
+        isAdmin: user.is_admin === 1,
+        created_at: user.created_at
+      });
+    }
+  );
+});
+
+// 3. 獲取所有用戶（管理員專用）
+app.get('/api/admin/all-users', (req, res) => {
+  db.all('SELECT id, username, is_admin, created_at FROM users ORDER BY created_at DESC', [], (err, users) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(users.map(u => ({
+      id: u.id,
+      username: u.username,
+      isAdmin: u.is_admin === 1,
+      created_at: u.created_at
+    })));
+  });
+});
+
+// 4. 刪除用戶（管理員專用）
+app.delete('/api/admin/users/:userId', (req, res) => {
+  const { userId } = req.params;
+  
+  db.run('DELETE FROM users WHERE id = ?', [userId], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (this.changes === 0) {
+      return res.status(404).json({ error: '用戶不存在' });
+    }
+    
+    // 同時刪除該用戶的所有分數記錄
+    db.run('DELETE FROM scores WHERE user_id = ?', [userId], (err) => {
+      if (err) {
+        console.error('刪除用戶分數記錄錯誤:', err);
+      }
+    });
+    
+    res.json({ message: '用戶已刪除' });
+  });
+});
+
+// 5. 提交分數
 app.post('/api/scores', (req, res) => {
   const { userId, gameName, score } = req.body;
 
@@ -66,7 +152,7 @@ app.post('/api/scores', (req, res) => {
   );
 });
 
-// 3. 獲取排行榜(按遊戲)
+// 6. 獲取排行榜(按遊戲)
 app.get('/api/leaderboard/:gameName', (req, res) => {
   const { gameName } = req.params;
   const limit = req.query.limit || 10;
@@ -93,7 +179,7 @@ app.get('/api/leaderboard/:gameName', (req, res) => {
   });
 });
 
-// 4. 獲取所有遊戲的統計數據(後台用)
+// 7. 獲取所有遊戲的統計數據(後台用)
 app.get('/api/admin/stats', (req, res) => {
   const query = `
     SELECT 
@@ -114,7 +200,7 @@ app.get('/api/admin/stats', (req, res) => {
   });
 });
 
-// 5. 獲取所有用戶及其統計(後台用)
+// 8. 獲取所有用戶及其統計(後台用)
 app.get('/api/admin/users', (req, res) => {
   const query = `
     SELECT 
@@ -137,7 +223,7 @@ app.get('/api/admin/users', (req, res) => {
   });
 });
 
-// 6. 獲取特定用戶的遊戲歷史
+// 9. 獲取特定用戶的遊戲歷史
 app.get('/api/users/:userId/history', (req, res) => {
   const { userId } = req.params;
 

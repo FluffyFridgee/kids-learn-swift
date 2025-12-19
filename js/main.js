@@ -1,3 +1,9 @@
+// API 配置
+const USE_BACKEND = true; // 設為 true 使用後端，false 使用 localStorage
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api' 
+    : 'https://kids-learn-swift-api.vercel.app/api'; // 請替換為你的 Vercel 後端網址
+
 // 用戶狀態管理
 let currentUser = null;
 
