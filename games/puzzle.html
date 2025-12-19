@@ -40,14 +40,6 @@
                         <p>支援 JPG、PNG 格式</p>
                         <input type="file" id="imageInput" accept="image/*" style="display: none;">
                         <button id="uploadBtn" class="upload-btn">選擇照片</button>
-                        <div class="demo-section">
-                            <p>或使用示範圖片：</p>
-                            <div class="demo-images">
-                                <button class="demo-img-btn" data-demo="1">🌄 風景</button>
-                                <button class="demo-img-btn" data-demo="2">🐱 動物</button>
-                                <button class="demo-img-btn" data-demo="3">🎨 藝術</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -69,7 +61,6 @@
                 <!-- 拼圖區域 -->
                 <div id="puzzleSection" class="puzzle-section" style="display: none;">
                     <div class="puzzle-controls">
-                        <button id="showPreviewBtn" class="preview-toggle">👁️ 顯示原圖</button>
                         <button id="restartBtn" class="restart-btn">🔄 重新開始</button>
                     </div>
                     <div class="puzzle-workspace">
@@ -83,9 +74,6 @@
                             <h3>拼圖碎片</h3>
                             <div id="piecesContainer" class="pieces-container"></div>
                         </div>
-                    </div>
-                    <div id="originalPreview" class="original-preview" style="display: none;">
-                        <img id="originalImage" src="" alt="原圖">
                     </div>
                 </div>
             </div>

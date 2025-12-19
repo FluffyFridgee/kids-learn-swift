@@ -10,13 +10,6 @@ const ROWS = 6;
 const COLS = 5;
 const TOTAL_PIECES = ROWS * COLS;
 
-// 示範圖片 URLs
-const DEMO_IMAGES = {
-    1: 'https://picsum.photos/500/600?random=1',
-    2: 'https://picsum.photos/500/600?random=2',
-    3: 'https://picsum.photos/500/600?random=3'
-};
-
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
@@ -28,22 +21,12 @@ function setupEventListeners() {
     const confirmBtn = document.getElementById('confirmBtn');
     const changeBtn = document.getElementById('changeBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const showPreviewBtn = document.getElementById('showPreviewBtn');
 
     uploadBtn.addEventListener('click', () => imageInput.click());
     imageInput.addEventListener('change', handleImageUpload);
     confirmBtn.addEventListener('click', startPuzzle);
     changeBtn.addEventListener('click', resetToUpload);
     restartBtn.addEventListener('click', restartPuzzle);
-    showPreviewBtn.addEventListener('click', toggleOriginalPreview);
-
-    // 示範圖片按鈕
-    document.querySelectorAll('.demo-img-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const demoNum = btn.dataset.demo;
-            loadDemoImage(demoNum);
-        });
-    });
 }
 
 // 處理圖片上傳
@@ -65,11 +48,6 @@ function handleImageUpload(event) {
 }
 
 // 載入示範圖片
-function loadDemoImage(demoNum) {
-    uploadedImage = DEMO_IMAGES[demoNum];
-    showPreview(uploadedImage);
-}
-
 // 顯示預覽
 function showPreview(imageSrc) {
     document.getElementById('uploadSection').style.display = 'none';
@@ -82,6 +60,8 @@ function resetToUpload() {
     document.getElementById('previewSection').style.display = 'none';
     document.getElementById('uploadSection').style.display = 'block';
     uploadedImage = null;
+    // 重置 file input，允許重新選擇同一張圖片
+    document.getElementById('imageInput').value = '';
 }
 
 // 開始拼圖遊戲
@@ -405,31 +385,6 @@ function restartPuzzle() {
 }
 
 // 切換顯示原圖
-function toggleOriginalPreview() {
-    const preview = document.getElementById('originalPreview');
-    const btn = document.getElementById('showPreviewBtn');
-    
-    if (preview.style.display === 'none') {
-        preview.style.display = 'block';
-        btn.textContent = '✕ 關閉原圖';
-    } else {
-        preview.style.display = 'none';
-        btn.textContent = '👁️ 顯示原圖';
-    }
-}
-
-// 點擊原圖預覽外部關閉
-document.addEventListener('click', (e) => {
-    const preview = document.getElementById('originalPreview');
-    const btn = document.getElementById('showPreviewBtn');
-    
-    if (preview && preview.style.display === 'block' && 
-        !preview.contains(e.target) && e.target !== btn) {
-        preview.style.display = 'none';
-        btn.textContent = '👁️ 顯示原圖';
-    }
-});
-
 // 計時器
 function startTimer() {
     startTime = Date.now();
