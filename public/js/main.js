@@ -41,17 +41,12 @@ function setupShareUrl() {
 // 設置事件監聽器
 function setupEventListeners() {
     const loginBtn = document.getElementById('loginBtn');
-    const registerBtn = document.getElementById('registerBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
     
     if (loginBtn) {
         loginBtn.addEventListener('click', handleLogin);
-    }
-    
-    if (registerBtn) {
-        registerBtn.addEventListener('click', handleRegister);
     }
     
     if (logoutBtn) {

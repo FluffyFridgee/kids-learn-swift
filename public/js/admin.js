@@ -103,7 +103,7 @@ function setupEventListeners() {
 }
 
 // 創建新帳號
-function handleCreateAccount() {
+async function handleCreateAccount() {
     const username = document.getElementById('newUsername').value.trim();
     const password = document.getElementById('newPassword').value.trim();
     const isAdmin = document.getElementById('isAdminCheck').checked;
@@ -123,25 +123,50 @@ function handleCreateAccount() {
         return;
     }
     
-    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
-    
-    if (allUsers.find(u => u.username === username)) {
-        alert('帳號已存在');
-        return;
+    // 如果使用後端
+    if (typeof USE_BACKEND !== 'undefined' && USE_BACKEND) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/create-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, isAdmin })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                alert(data.error || '創建失敗');
+                return;
+            }
+            
+            alert(`帳號創建成功！\n帳號：${username}\n密碼：${password}\n${isAdmin ? '管理員' : '一般用戶'}`);
+        } catch (error) {
+            console.error('創建帳號錯誤:', error);
+            alert('網絡錯誤，請稍後再試');
+            return;
+        }
+    } else {
+        // 使用 localStorage
+        const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+        
+        if (allUsers.find(u => u.username === username)) {
+            alert('帳號已存在');
+            return;
+        }
+        
+        const newUser = {
+            id: Date.now().toString(),
+            username: username,
+            password: password,
+            isAdmin: isAdmin,
+            created_at: new Date().toISOString()
+        };
+        
+        allUsers.push(newUser);
+        localStorage.setItem('allUsers', JSON.stringify(allUsers));
+        
+        alert(`帳號創建成功！\n帳號：${username}\n密碼：${password}\n${isAdmin ? '管理員' : '一般用戶'}`);
     }
-    
-    const newUser = {
-        id: Date.now().toString(),
-        username: username,
-        password: password,
-        isAdmin: isAdmin,
-        created_at: new Date().toISOString()
-    };
-    
-    allUsers.push(newUser);
-    localStorage.setItem('allUsers', JSON.stringify(allUsers));
-    
-    alert(`帳號創建成功！\n帳號：${username}\n密碼：${password}\n${isAdmin ? '管理員' : '一般用戶'}`);
     
     document.getElementById('newUsername').value = '';
     document.getElementById('newPassword').value = '';

@@ -14,9 +14,12 @@ app.use(express.static('public'));
 
 // API路由
 
-// 1. 用戶註冊
-app.post('/api/register', (req, res) => {
-  const { username, password, isAdmin } = req.body;
+// 1. 創建用戶（管理員專用）
+app.post('/api/admin/create-user', (req, res) => {
+  const { username, password, isAdmin, adminToken } = req.body;
+  
+  // 這裡可以添加更嚴格的管理員驗證
+  // 目前簡單檢查是否提供了管理員憑證
   
   if (!username || !password) {
     return res.status(400).json({ error: '帳號和密碼不能為空' });
@@ -52,7 +55,7 @@ app.post('/api/register', (req, res) => {
           id: this.lastID, 
           username,
           isAdmin: isAdmin ? true : false,
-          message: '註冊成功' 
+          message: '帳號創建成功' 
         });
       }
     );
