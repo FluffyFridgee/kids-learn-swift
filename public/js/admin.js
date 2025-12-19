@@ -1,8 +1,3 @@
-// API基礎URL
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api' 
-    : 'https://game-platform-kqct31fyu-fridges-projects-eaccd8b6.vercel.app/api';
-
 let allUsers = [];
 let currentGameTab = 'memory-cards';
 
@@ -39,49 +34,67 @@ function setupEventListeners() {
 }
 
 // 載入所有數據
-async function loadAllData() {
-    await Promise.all([
-        loadStatistics(),
-        loadGameStats(),
-        loadUsers(),
-        loadGameLeaderboard(currentGameTab)
-    ]);
+function loadAllData() {
+    loadStatistics();
+    loadGameStats();
+    loadUsers();
+    loadGameLeaderboard(currentGameTab);
 }
 
 // 載入統計數據
-async function loadStatistics() {
+function loadStatistics() {
     try {
-        const [usersResponse, statsResponse] = await Promise.all([
-            fetch(`${API_BASE_URL}/admin/users`),
-            fetch(`${API_BASE_URL}/admin/stats`)
-        ]);
-
-        const users = await usersResponse.json();
-        const stats = await statsResponse.json();
-
-        // 計算總用戶數
-        document.getElementById('totalUsers').textContent = users.length;
-
-        // 計算總遊戲次數
-        const totalGames = stats.reduce((sum, game) => sum + game.total_plays, 0);
-        document.getElementById('totalGames').textContent = totalGames;
-
-        // 計算最高分
-        const highestScore = stats.reduce((max, game) => 
-            Math.max(max, game.highest_score || 0), 0);
+        const allScores = JSON.parse(localStorage.getItem('gameScores') || '[]');
+        const users = JSON.parse(localStorage.getItem('gameUser') || 'null');
+        
+        // 統計獨特用戶
+        const uniqueUsers = new Set(allScores.map(s => s.userId));
+        document.getElementById('totalUsers').textContent = uniqueUsers.size || (users ? 1 : 0);
+        
+        // 總遊戲次數
+        document.getElementById('totalGames').textContent = allScores.length;
+        
+        // 最高分
+        const highestScore = allScores.length > 0 
+            ? Math.max(...allScores.map(s => s.score))
+            : 0;
         document.getElementById('highestScore').textContent = highestScore;
-
+        
     } catch (error) {
         console.error('載入統計數據錯誤:', error);
     }
 }
 
 // 載入遊戲統計
-async function loadGameStats() {
+function loadGameStats() {
     try {
-        const response = await fetch(`${API_BASE_URL}/admin/stats`);
-        const stats = await response.json();
-
+        const allScores = JSON.parse(localStorage.getItem('gameScores') || '[]');
+        
+        // 按遊戲名稱統計
+        const gameStats = {};
+        allScores.forEach(score => {
+            if (!gameStats[score.gameName]) {
+                gameStats[score.gameName] = {
+                    game_name: score.gameName,
+                    scores: [],
+                    players: new Set()
+                };
+            }
+            gameStats[score.gameName].scores.push(score.score);
+            gameStats[score.gameName].players.add(score.userId);
+        });
+        
+        // 轉換為統計格式
+        const stats = Object.values(gameStats).map(game => ({
+            game_name: game.game_name,
+            unique_players: game.players.size,
+            total_plays: game.scores.length,
+            highest_score: game.scores.length > 0 ? Math.max(...game.scores) : 0,
+            average_score: game.scores.length > 0 
+                ? game.scores.reduce((a, b) => a + b, 0) / game.scores.length 
+                : 0
+        }));
+        
         displayGameStats(stats);
     } catch (error) {
         console.error('載入遊戲統計錯誤:', error);
@@ -149,10 +162,38 @@ function displayGameStats(stats) {
 }
 
 // 載入用戶數據
-async function loadUsers() {
+function loadUsers() {
     try {
-        const response = await fetch(`${API_BASE_URL}/admin/users`);
-        allUsers = await response.json();
+        const allScores = JSON.parse(localStorage.getItem('gameScores') || '[]');
+        
+        // 按用戶統計
+        const userStats = {};
+        allScores.forEach(score => {
+            if (!userStats[score.userId]) {
+                userStats[score.userId] = {
+                    id: score.userId,
+                    username: score.username,
+                    scores: [],
+                    created_at: score.timestamp
+                };
+            }
+            userStats[score.userId].scores.push(score.score);
+            // 更新為最早的時間
+            if (score.timestamp < userStats[score.userId].created_at) {
+                userStats[score.userId].created_at = score.timestamp;
+            }
+        });
+        
+        // 轉換為用戶陣列
+        allUsers = Object.values(userStats).map(user => ({
+            id: user.id,
+            username: user.username,
+            total_score: user.scores.reduce((a, b) => a + b, 0),
+            total_games: user.scores.length,
+            average_score: user.scores.reduce((a, b) => a + b, 0) / user.scores.length,
+            created_at: user.created_at
+        }));
+        
         displayUsers(allUsers);
     } catch (error) {
         console.error('載入用戶數據錯誤:', error);
@@ -245,13 +286,37 @@ function sortUsers() {
 }
 
 // 載入遊戲排行榜
-async function loadGameLeaderboard(gameName) {
+function loadGameLeaderboard(gameName) {
     const container = document.getElementById('gameLeaderboard');
     container.innerHTML = '<p class="loading">載入中...</p>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/leaderboard/${gameName}?limit=20`);
-        const data = await response.json();
+        const allScores = JSON.parse(localStorage.getItem('gameScores') || '[]');
+        const gameScores = allScores.filter(s => s.gameName === gameName);
+        
+        // 按用戶聚合
+        const userStats = {};
+        gameScores.forEach(score => {
+            if (!userStats[score.username]) {
+                userStats[score.username] = {
+                    username: score.username,
+                    best_score: score.score,
+                    play_count: 1
+                };
+            } else {
+                userStats[score.username].best_score = Math.max(
+                    userStats[score.username].best_score,
+                    score.score
+                );
+                userStats[score.username].play_count++;
+            }
+        });
+        
+        // 轉為陣列並排序，取前 20 名
+        const data = Object.values(userStats)
+            .sort((a, b) => b.best_score - a.best_score)
+            .slice(0, 20);
+        
         displayGameLeaderboard(data);
     } catch (error) {
         console.error('載入遊戲排行榜錯誤:', error);
