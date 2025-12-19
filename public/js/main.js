@@ -9,7 +9,7 @@ let currentUser = null;
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     loadUserFromStorage();
-    loadLeaderboard('guess-number');
+    loadLeaderboard('memory-cards');
     setupEventListeners();
     setupShareUrl();
 });

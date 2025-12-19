@@ -4,7 +4,7 @@ const API_BASE_URL = window.location.hostname === 'localhost'
     : 'https://game-platform-kqct31fyu-fridges-projects-eaccd8b6.vercel.app/api';
 
 let allUsers = [];
-let currentGameTab = 'guess-number';
+let currentGameTab = 'memory-cards';
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
@@ -105,7 +105,6 @@ function displayGameStats(stats) {
     }
 
     const gameNames = {
-        'guess-number': '🎯 猜數字',
         'memory-cards': '🃏 記憶卡',
         'whack-a-mole': '🔨 打地鼠'
     };
